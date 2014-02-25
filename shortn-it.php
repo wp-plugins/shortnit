@@ -4,7 +4,7 @@ Plugin Name: Shortn.It
 Plugin URI: http://docof.me/shortn-it
 Help & Support: http://docof.me/shortn-it
 Description: Personal, customized URL shortening for WordPress.
-Version: 1.0.0
+Version: 1.1.0
 Author: David Cochrum
 Author URI: http://www.docofmedia.com/
 
@@ -81,7 +81,7 @@ class Shortn_It {
 	
 	//	Redirect incoming Shortn.It URL page requests to the appropriate post
 	public function shortn_it_do_redirect() {
-		
+				
 		//	Get the matching post ID from the requested URI
 		$post_id = $this->shortn_it_get_matching_post_id( $_SERVER['REQUEST_URI'] );
 		
@@ -96,6 +96,7 @@ class Shortn_It {
 	
 	//	Get the matching post ID from the given URL
 	public function shortn_it_get_matching_post_id( $url ) {
+		global $wpdb;
 		
 		//	If the URL doesn't begin with the chosen prefix, return nothing
 		if( stripos( $url, $this->get_shortn_it_url_prefix() ) != 0 ) return '';
@@ -109,14 +110,8 @@ class Shortn_It {
 		if( $the_short == '')
 			return '';
 		
-		//	Get any type of post that the Shortn.It URL matches the Shortn.It stored meta
-		$matches = get_posts( array( 'post_type' => 'any', 'meta_key' => SHORTN_IT_META, 'meta_value' => substr_replace( $url, '', 0, strlen($url_prefix) ), 'posts_per_page', 1 ) );
-		
-		//	If a match is found, return the post ID or else return nothing
-		if( count( $matches ) > 0 )
-			return $matches[0]->ID;
-		else
-			return '';
+		//	Query the DB for any post that the Shortn.It URL matches the Shortn.It stored meta
+		return $wpdb->get_var( 'SELECT `post_id` FROM `' . $wpdb->postmeta . '` where `meta_key` = "'. SHORTN_IT_META . '" and `meta_value` = "' . substr_replace( $url, '', 0, strlen( $url_prefix ) ) . '"' );
 			
 	}
 	
@@ -231,10 +226,10 @@ class Shortn_It {
 			return false;
 		
 		//	Query for any posts (of any type) that have a Shortn.It URL matching the string
-		$matches = get_posts( array( 'post_type' => 'any', 'meta_key' => SHORTN_IT_META, 'meta_value' => $the_short, 'posts_per_page' => 1 ) );
+		$post_id = $wpdb->get_var( 'SELECT `post_id` FROM `' . $wpdb->postmeta . '` where `meta_key` = "'. SHORTN_IT_META . '" and `meta_value` = "' . substr_replace( $url, '', 0, strlen( $url_prefix ) ) . '"' );
 		
 		//	Return true if there is a match, false if not
-		return ( count( $matches ) > 0 );
+		return ( ! empty( $post_id ) );
 		
 	}
 	
@@ -303,7 +298,7 @@ class Shortn_It {
 				<?php wp_nonce_field( basename( __FILE__ ), 'shortn_it_nonce' ); ?>
 				
 				<?php _e( 'This post\'s shortned url ' . ( ( $shortn_url != '' ) ? 'is' : 'will be' ), 'shortn_it_textdomain' ); ?>:<br>
-				<span class="shortn_it_url_prefix"><?php echo $this->get_shortn_it_domain() . $this->get_shortn_it_url_prefix(); ?></span>
+				<span class="shortn_it_url_prefix"><?php echo str_replace( 'http://', '', $this->get_shortn_it_domain() ) . $this->get_shortn_it_url_prefix(); ?></span>
 				<code class="shortn_it_url_wrap">
 					<?php echo ( ( $shortn_url != '' ) ? '<a href="' . $shortn_it_permalink . '">
 						<span class="shortn_it_url">' . $shortn_url . '</span></a>' : 
