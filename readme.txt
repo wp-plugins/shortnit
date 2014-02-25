@@ -38,13 +38,13 @@ Installing Shortn.It is a breeze.
 
 == Frequently Asked Questions ==
 
-= A question that someone might have =
+= How do I find a shorter domain name =
 
-An answer to that question.
+A great tool to help you come up with a short domain and see what's available is <a href="http://domai.nr">Domai.nr</a>.
 
-= What about foo bar? =
+= How do I configure the short domain name =
 
-Answer to foo bar dilemma.
+The short domain needs to be configured as an alias to your main domain. If you're not sure how to configure an alias domain, a guide can be found in the <a href="http://docof.me/shortn-it">help and documentation</a>.
 
 == Screenshots ==
 
