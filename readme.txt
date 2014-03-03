@@ -1,7 +1,7 @@
 === Shorn.It ===
 Contributors: docofmedia
 Donate link: http://docof.me
-Version: 1.1.0
+Version: 1.2.0
 Tags: url shortener, url shortening, shorturl, short_url, shortlink, short permalink, short url, custom short url, custom url
 Requires at least: 2.5
 Tested up to: 3.8.1
@@ -54,10 +54,16 @@ The short domain needs to be configured as an alias to your main domain. If you'
 
 == Changelog ==
 
+= 1.2.0 =
+* FIXED: Shortn.It URL checking throwing errors
+
 = 1.1.0 =
 * FIXED: Not finding Shortn.It URLs for improperly registered post types
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+New Shortn.It URLs that were being generated and checked for duplicates were throwing areas. Upgrade immediately!
 
 = 1.1.0 =
 Shortn.It URLs are generated for any post type, but weren't able to be retrieved for improperly registered post types. Upgrade immediately to prevent your Shortn.It URLs from returning 404 Not Found errors.

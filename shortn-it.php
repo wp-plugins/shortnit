@@ -4,7 +4,7 @@ Plugin Name: Shortn.It
 Plugin URI: http://docof.me/shortn-it
 Help & Support: http://docof.me/shortn-it
 Description: Personal, customized URL shortening for WordPress.
-Version: 1.1.0
+Version: 1.2.0
 Author: David Cochrum
 Author URI: http://www.docofmedia.com/
 
@@ -221,12 +221,14 @@ class Shortn_It {
 	//	Check if a string matches an existing Shortn.It URL
 	private function shortn_it_check_url( $the_short ) {
 		
+		global $wpdb;
+		
 		// If the string is empty, return false
 		if( $the_short == '' )
 			return false;
 		
 		//	Query for any posts (of any type) that have a Shortn.It URL matching the string
-		$post_id = $wpdb->get_var( 'SELECT `post_id` FROM `' . $wpdb->postmeta . '` where `meta_key` = "'. SHORTN_IT_META . '" and `meta_value` = "' . substr_replace( $url, '', 0, strlen( $url_prefix ) ) . '"' );
+		$post_id = $wpdb->get_var( 'SELECT `post_id` FROM `' . $wpdb->postmeta . '` where `meta_key` = "'. SHORTN_IT_META . '" and `meta_value` = "' . $the_short . '"' );
 		
 		//	Return true if there is a match, false if not
 		return ( ! empty( $post_id ) );
