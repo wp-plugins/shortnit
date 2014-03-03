@@ -33,8 +33,8 @@ Installing Shortn.It is a breeze.
 
 1. Upload the `shortn-it` folder to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Add the Shortn.It sidebar widget to a sidebar, or add `<?php the_shortn_url_link(); ?>` in your template where you'd like the shortened URL link to show up.
-1. If you'd like to use a separate domain for your shortened links, <a href="#">see this article</a>.
+1. Edit the post(s) you would like to create a Shortn.It URL for and the URL will be set once you update the post. If you wish, you may add `<?php the_shortn_url_link(); ?>` in your template where you'd like the shortened URL link to show up.
+1. If you'd like to use a separate, shorter domain for your shortened links, a guide can be found in the <a href="http://docof.me/shortn-it">help and documentation</a>.
 
 == Frequently Asked Questions ==
 
