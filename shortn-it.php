@@ -4,7 +4,7 @@ Plugin Name: Shortn.It
 Plugin URI: http://docof.me/shortn-it
 Help & Support: http://docof.me/shortn-it
 Description: Personal, customized URL shortening for WordPress.
-Version: 1.2.0
+Version: 1.3.0
 Author: David Cochrum
 Author URI: http://www.docofmedia.com/
 
@@ -25,10 +25,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-// Enable libcurl functions on unsupported installations
-
-//require_once( 'libcurlemu-1.0.4/libcurlemu.inc.php' );
-
 //	Define constant(s)
 define( 'SHORTN_IT_META', '_shortn_it_url' );
 
@@ -42,10 +38,11 @@ class Shortn_It {
 	public function __construct() {
 		
 		//	Add Shortn.It option defaults
-		add_option( 'shortn_it_version', '1.0.0' );
+		add_option( 'shortn_it_version', '1.3.0' );
 		add_option( 'shortn_it_use_mobile_style', 'yes' );
 		add_option( 'shortn_it_link_text', 'shortn url' );
 		add_option( 'shortn_it_permalink_prefix', 'default' );
+		add_option( 'shortn_it_allow_slash', 'yes' );
 		add_option( 'shortn_it_permalink_custom', '/a/' );
 		add_option( 'shortn_it_use_lowercase', 'yes' );
 		add_option( 'shortn_it_use_uppercase', 'yes' );
@@ -53,6 +50,7 @@ class Shortn_It {
 		add_option( 'shortn_it_length', '5' );
 		add_option( 'shortn_use_short_url', 'yes' );
 		add_option( 'shortn_use_shortlink', 'yes' );
+		//add_option( 'shortn_use_shortlink_header', 'yes' );
 		add_option( 'shortn_it_registered', 'no' );
 		add_option( 'shortn_it_registered_on', '0' );
 		add_option( 'shortn_it_permalink_domain', 'default' );
@@ -64,7 +62,7 @@ class Shortn_It {
 		add_option( 'shortn_it_hide_nag', 'yes' );
 		
 		//	Create necessary actions
-		add_action( 'init', array( &$this, 'shortn_it_do_redirect' ) );
+		add_action( 'init', array( &$this, 'shortn_it_headers' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'shortn_it_enqueue_edit_scripts' ) );
 		add_action( 'admin_menu', array( &$this, 'shortn_it_admin_panel' ) );
 		add_action( 'admin_menu', array( &$this, 'shortn_it_sidebar' ) );
@@ -80,16 +78,24 @@ class Shortn_It {
 	}
 	
 	//	Redirect incoming Shortn.It URL page requests to the appropriate post
-	public function shortn_it_do_redirect() {
-				
-		//	Get the matching post ID from the requested URI
-		$post_id = $this->shortn_it_get_matching_post_id( $_SERVER['REQUEST_URI'] );
+	public function shortn_it_headers() {
 		
-		//	If there's a match, send a new, temporary (in case it changes) redirect header 
-		if($post_id != '' ) {
+		$current_url = 'http' . ( ( $_SERVER['HTTPS'] ) ? 's' : '' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		
+		//	TODO Add shortlink HTTP header if desired and post has a short URL
+		/*if( get_option( 'shortn_use_shortlink_header' ) == 'yes' && $post_id = url_to_postid( $current_url ) ) {
+			echo '<pre>'; var_dump( $current_url, $post_id ); exit;
+			$short_url = $this->get_shortn_it_url_permalink( $post_id );
+			if( $short_url != '' )
+				header( 'Link: <' . $short_url . '>; rel=shortlink' );
+		}
+		//	Unable to match a post, so determine if this is a short link that needs redirecting
+		else*/ if( $post_id = $this->shortn_it_get_matching_post_id( $_SERVER['REQUEST_URI'] ) ) {
 			$permalink = get_permalink( $post_id );
-			header( 'Location: ' . $permalink, true, 302 );
-			exit;
+			if( $permalink != $current_url ) {
+				header( 'Location: ' . $permalink, true, 302 );
+				exit;
+			}
 		}
 		
 	}
@@ -104,14 +110,19 @@ class Shortn_It {
 		$url_prefix = $this->get_shortn_it_url_prefix();
 
 		//	Get the Shortn.It URL by removing the prefix
-		$the_short = substr_replace( $url, '', 0, strlen($url_prefix) );
+		$the_short = substr_replace( $url, '', 0, strlen( $url_prefix ) );
 		
 		//	Once the prefix has been removed, if there's nothing left but an empty string, return nothing
-		if( $the_short == '')
+		if( $the_short == '' )
 			return '';
+
+		$the_short = substr_replace( $url, '', 0, strlen( $url_prefix ) );
+
+		if( $this->get_shortn_it_allow_slash() )
+			$the_short = rtrim( $the_short, '/' );
 		
 		//	Query the DB for any post that the Shortn.It URL matches the Shortn.It stored meta
-		return $wpdb->get_var( 'SELECT `post_id` FROM `' . $wpdb->postmeta . '` where `meta_key` = "'. SHORTN_IT_META . '" and `meta_value` = "' . substr_replace( $url, '', 0, strlen( $url_prefix ) ) . '"' );
+		return $wpdb->get_var( 'SELECT `post_id` FROM `' . $wpdb->postmeta . '` where `meta_key` = "'. SHORTN_IT_META . '" and `meta_value` = "' . $the_short . '"' );
 			
 	}
 	
@@ -126,6 +137,13 @@ class Shortn_It {
 			
 	}
 	
+	//	Get boolean value value of the `allow slash` option
+	public function get_shortn_it_allow_slash() {
+		
+		return( get_option( 'shortn_it_allow_slash' ) == 'yes' );
+			
+	}
+	
 	//	Get the complete Shortn.It URL
 	public function get_shortn_it_url_permalink( $post_id ) {
 		
@@ -133,7 +151,7 @@ class Shortn_It {
 		$shortn_url = $this->get_shortn_it( $post_id );
 		
 		//	If no Shortn.It URL is associated with the post, return nothing, or else return the full URL
-		if($shortn_url == '' )
+		if( $shortn_url == '' )
 			return '';
 		else
 			return $this->get_shortn_it_domain() . $this->get_shortn_it_url_prefix() . $shortn_url;
@@ -464,7 +482,7 @@ class Shortn_It {
 	public function shortn_it_admin_panel() {
 		
 		//	Register the Shortn.It options page
-		add_options_page( 'Shortn.It', 'Shortn.It', 'manage_options', 'shortn-it/shortn-it-options.php', array( &$this, 'shortn_it_settings' ) );
+		add_options_page( 'Shortn.It', 'Shortn.It', 'manage_options', 'shortnit/shortn-it-options.php', array( &$this, 'shortn_it_settings' ) );
 		
 		//	If the current user has permission to at least edit posts, add a link to the settings menu
 		if( current_user_can( 'edit_posts' ) && function_exists( 'add_submenu_page' ) )
@@ -482,7 +500,7 @@ class Shortn_It {
 	// Thanks to //wpengineer.com/how-to-improve-wordpress-plugins/ for instructions on adding the Settings link
 	public function shortn_it_plugin_actions( $links ) {
 		
-		$settings_link = '<a href="options-general.php?page=shortn-it/shortn-it-options.php">' . __( 'Settings', 'shortn_it_textdomain' ) . '</a>';
+		$settings_link = '<a href="options-general.php?page=shortnit/shortn-it-options.php">' . __( 'Settings', 'shortn_it_textdomain' ) . '</a>';
 		$links = array_merge( array( $settings_link ), $links ); // before other links
 		return $links;
 		
@@ -492,14 +510,14 @@ class Shortn_It {
 	public function shortn_it_register() {
 		
 		update_option( 'shortn_it_registered', 'yes' );
-		update_option( 'shortn_it_registered_on', time());
+		update_option( 'shortn_it_registered_on', time() );
 		
 	}
 	
 	//	Change the option to show/hide GoDaddy referral links
 	public function shortn_it_hide_godaddy( $option ) {
 		
-		if($option == 'yes' )
+		if( $option == 'yes' )
 			update_option( 'shortn_it_hide_godaddy', 'yes' );
 		else
 			update_option( 'shortn_it_hide_godaddy', 'no' );
@@ -509,7 +527,7 @@ class Shortn_It {
 	//	Change the option to show/hide donation request links
 	public function shortn_it_hide_nag( $option ) {
 		
-		if($option == 'yes' )
+		if( $option == 'yes' )
 			update_option( 'shortn_it_hide_nag', 'yes' );
 		else
 			update_option( 'shortn_it_hide_nag', 'no' );

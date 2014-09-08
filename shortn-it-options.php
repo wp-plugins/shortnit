@@ -27,8 +27,8 @@ $shortn_it_domain = $Shortn_It->get_shortn_it_domain();
 </style>
 			<script src="<?php echo plugins_url( 'js/shortn-it-options.js', __FILE__ ); ?>" charset="utf-8"></script>
 			<div class="wrap">
-<form method="post" action="options.php" autocomplete="off">
-<?php wp_nonce_field( 'update-options' ); ?>
+			<form method="post" action="options.php" autocomplete="off">
+				<?php wp_nonce_field( 'update-options' ); ?>
 				<?php if( get_option( 'shortn_it_hide_nag' ) == 'no' ) { ?>
 				<div class="shortn-wrapper panel" id="shortnItDonate">
 					<div class="shortn-section-header">
@@ -79,6 +79,9 @@ $shortn_it_domain = $Shortn_It->get_shortn_it_domain();
 					<div class="shortn-look-like">
 						<h3>Your short URLs will look like:</h3>
 						<p><span class="domain"><?php echo str_replace( 'http://' , '', $shortn_it_domain ); ?></span><span class="prefix"><?php echo ( $shortn_it_permalink_prefix != 'default' ) ? $shortn_it_permalink_custom : '/'; ?></span><span class="url"><?php echo $shortn_it_example_url; ?></span></p>
+						<label for="shortn_it_allow_slash" class="checkbox">
+							<input name="shortn_it_allow_slash" type="checkbox" id="shortn_it_allow_slash" value='yes' <?php if( get_option( 'shortn_it_allow_slash' ) == 'yes' ) { echo 'checked="checked"'; } ?>>
+							Allow short URLs with trailing slashes to work as well</label>
 					</div>
 				</div>
 
@@ -133,6 +136,10 @@ $shortn_it_domain = $Shortn_It->get_shortn_it_domain();
 					<input name="shortn_use_shortlink" type="checkbox" id="shortn_use_shortlink" value='yes' <?php if( get_option( 'shortn_use_shortlink' ) == 'yes' ) { echo 'checked="checked"'; } ?>>
 					Use <a href="//microformats.org/wiki/rel-shortlink" title="Learn about rel=shortlink">shortlink</a></label>
 			<?php /*		
+					<label for="shortn_use_shortlink_header" class="checkbox">
+					<input name="shortn_use_shortlink_header" type="checkbox" id="shortn_use_shortlink_header" value='yes' <?php if( get_option( 'shortn_use_shortlink_header' ) == 'yes' ) { echo 'checked="checked"'; } ?>>
+					Use <a href="//purl.org/net/shortlink" title="Learn about the shortlink header">shortlink header</a></label>
+			
 					<label for="shortn_it_track_hits" class="checkbox">
 					<input name="shortn_it_track_hits" type="checkbox" id="shortn_it_track_hits" value='yes' <?php if( get_option( 'shortn_it_track_hits' ) == 'yes' ) { echo 'checked="checked"'; } ?>>
 					
@@ -145,6 +152,6 @@ $shortn_it_domain = $Shortn_It->get_shortn_it_domain();
 				<button type="submit" name="submit" class="shortn-save-button cssbutton blue">Save Changes</button>
 	
 				<input type="hidden" name="action" value="update">
-				<input type="hidden" name="page_options" value="shortn_it_permalink_prefix,shortn_it_permalink_custom,shortn_it_use_lowercase,shortn_it_use_uppercase,shortn_it_use_numbers,shortn_it_length,shortn_it_permalink_domain,shortn_it_domain_custom,shortn_use_short_url,shortn_use_shortlink">
+				<input type="hidden" name="page_options" value="shortn_it_permalink_prefix,shortn_it_permalink_custom,shortn_it_use_lowercase,shortn_it_use_uppercase,shortn_it_use_numbers,shortn_it_length,shortn_it_permalink_domain,shortn_it_domain_custom,shortn_use_short_url,shortn_use_shortlink,<?php /*shortn_use_shortlink_header,*/ ?>shortn_it_allow_slash">
 	</form>
 </div>
