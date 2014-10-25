@@ -1,7 +1,7 @@
 === Shorn.It ===
 Contributors: docofmedia
 Donate link: http://docof.me
-Version: 1.3.0
+Version: 1.4.0
 Tags: url shortener, url shortening, shorturl, short_url, shortlink, short permalink, short url, custom short url, custom url
 Requires at least: 2.5
 Tested up to: 4.0
@@ -53,6 +53,9 @@ The short domain needs to be configured as an alias to your main domain. If you'
 3. Shortn.It's duplicate URL checking
 
 == Changelog ==
+
+= 1.4.0 =
+* IMPROVED: HTTPS detection
 
 = 1.3.0 =
 * ADDED: Trailing slash option

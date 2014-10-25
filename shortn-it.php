@@ -4,7 +4,7 @@ Plugin Name: Shortn.It
 Plugin URI: http://docof.me/shortn-it
 Help & Support: http://docof.me/shortn-it
 Description: Personal, customized URL shortening for WordPress.
-Version: 1.3.0
+Version: 1.4.0
 Author: David Cochrum
 Author URI: http://www.docofmedia.com/
 
@@ -80,7 +80,7 @@ class Shortn_It {
 	//	Redirect incoming Shortn.It URL page requests to the appropriate post
 	public function shortn_it_headers() {
 		
-		$current_url = 'http' . ( ( $_SERVER['HTTPS'] ) ? 's' : '' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		$current_url = 'http' . ( ( ( ! empty( $_SERVER[ 'HTTPS' ] ) && $_SERVER[ 'HTTPS' ] !== 'off' ) || $_SERVER[ 'SERVER_PORT' ] == 443 ) ? 's' : '' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 		
 		//	TODO Add shortlink HTTP header if desired and post has a short URL
 		/*if( get_option( 'shortn_use_shortlink_header' ) == 'yes' && $post_id = url_to_postid( $current_url ) ) {
