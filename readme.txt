@@ -1,4 +1,4 @@
-=== Shorn.It ===
+=== Shortn.It ===
 Contributors: docofmedia
 Donate link: http://docof.me
 Version: 1.1.0
