@@ -4,7 +4,7 @@ Plugin Name: Shortn.It
 Plugin URI: http://docof.me/shortn-it
 Help & Support: http://docof.me/shortn-it
 Description: Personal, customized URL shortening for WordPress.
-Version: 1.4.0
+Version: 1.5.0
 Author: David Cochrum
 Author URI: http://www.docofmedia.com/
 
@@ -38,7 +38,7 @@ class Shortn_It {
 	public function __construct() {
 		
 		//	Add Shortn.It option defaults
-		add_option( 'shortn_it_version', '1.3.0' );
+		add_option( 'shortn_it_version', '1.5.0' );
 		add_option( 'shortn_it_use_mobile_style', 'yes' );
 		add_option( 'shortn_it_link_text', 'shortn url' );
 		add_option( 'shortn_it_permalink_prefix', 'default' );
@@ -360,65 +360,84 @@ class Shortn_It {
 		
 	}
 	
+	//	Get the Shortn.It URL for the current post within "the loop"
+	public function get_the_shortn_url() {
+
+		return $this->get_shortn_it( get_the_ID() );
+			
+	}
+	
 	//	Echo the Shortn.It URL for the current post within "the loop"
 	public function the_shortn_url() {
 	
-		$post_id = get_the_ID();
-		
-		$shortn_url = $this->get_shortn_it( $post_id );
-		if($shortn_url != '' )
-			echo $shortn_url;
+		echo $this->get_the_shortn_url();
 			
+	}
+	
+	//	Get an anchor tag of the Shortn.It URL for the current post within "the loop"
+	public function get_the_shortn_url_link() {
+		
+		$post_id = get_the_ID();
+		$shortn_url = $this->get_shortn_it( $post_id );
+		
+		if( $shortn_url == '' )
+			return '';
+			
+		if( get_option( 'shortn_it_use_url_as_link_text' ) == 'yes' )
+			$anchor_text = self::get_the_full_shortn_url();
+		else
+			$anchor_text = get_option( 'shortn_it_link_text' );
+		
+		return '<a href="' . $this->get_shortn_it_url_permalink( $post_id ) . '" class="shortn_it" rel="nofollow" title="shortened permalink for this page">' . htmlspecialchars( $anchor_text, ENT_QUOTES, 'UTF-8' ) . '</a>';
+		
 	}
 	
 	//	Echo an anchor tag of the Shortn.It URL for the current post within "the loop"
 	public function the_shortn_url_link() {
 		
+		echo $this->get_the_shortn_url_link();
+		
+	}
+	
+	//	Get the full Shortn.It URL for the current post within "the loop"
+	public function get_the_full_shortn_url() {
+	
 		$post_id = get_the_ID();
+	
 		$shortn_url = $this->get_shortn_it( $post_id );
-		
-		if($shortn_url != '' ) {
+		if( $shortn_url == '' )
+			return '';
+
+		return $this->get_shortn_it_url_permalink( $post_id );
 			
-			if( get_option( 'shortn_it_use_url_as_link_text' ) == 'yes' )
-				$anchor_text = $shortn_it_permalink;
-			else
-				$anchor_text = get_option( 'shortn_it_link_text' );
-			
-			echo '<a href="' . $this->get_shortn_it_url_permalink( $post_id ) . '" class="shortn_it" rel="nofollow" title="shortened permalink for this page">' . htmlspecialchars( $anchor_text, ENT_QUOTES, 'UTF-8' ) . '</a>';
-		}
-		
 	}
 	
 	//	Echo the full Shortn.It URL for the current post within "the loop"
 	public function the_full_shortn_url() {
 	
-		$post_id = get_the_ID();
-	
-		$shortn_url = $this->get_shortn_it( $post_id );
-		if( $shortn_url != '' )
-			echo $this->get_shortn_it_url_permalink( $post_id );
+		echo $this->get_the_full_shortn_url();
 			
 	}
 	
-	//	Updat the Shortn.It URL meta once the post has been saved
+	//	Update the Shortn.It URL meta once the post has been saved
 	public function shortn_it_save_url( $post_id ) {
 		
 		// verify this came from the our screen and with proper authorization.
-		if ( ! isset( $_POST['shortn_it_nonce'] ) || ! wp_verify_nonce( $_POST['shortn_it_nonce'], basename( __FILE__ ) ) )
+		if( ! isset( $_POST[ 'shortn_it_nonce' ] ) || ! wp_verify_nonce( $_POST[ 'shortn_it_nonce' ], basename( __FILE__ ) ) )
 			return $post_id;
 		 
 		// verify if this is an auto save routine. If it is our form has not been submitted, so we dont want to do anything
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) 
+		if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) 
 			return $post_id;
 		 
 		// Check permissions
-		if ( ! current_user_can( 'edit_post', $post_id ) )
+		if( ! current_user_can( 'edit_post', $post_id ) )
 			return $post_id;
 			
 		// OK, we're authenticated: we need to find and save the data   
 		$post = get_post( $post_id );
-		update_post_meta( $post_id, SHORTN_IT_META, esc_attr( $_POST['shortn_it_url'] ) );
-		return esc_attr( $_POST['shortn_it_url'] );
+		update_post_meta( $post_id, SHORTN_IT_META, esc_attr( $_POST[ 'shortn_it_url' ] ) );
+		return esc_attr( $_POST[ 'shortn_it_url' ] );
 		
 	}
 	
@@ -426,15 +445,15 @@ class Shortn_It {
 	public function shortn_it_json_check_url() {
 		
 		//	If the nonce doesn't match up, too bad
-		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], basename( __FILE__ ) ) )
-			die ( 'Invalid Nonce' );
+		if( ! isset( $_REQUEST[ 'nonce' ] ) || ! wp_verify_nonce( $_REQUEST[ 'nonce' ], basename( __FILE__ ) ) )
+			die( 'Invalid Nonce' );
 		
 		//	Output JSON content type header
 		header( 'Content-Type: application/json' );
 		//	Get the id of the post that matches the requested string
-		$match_id = $this->shortn_it_get_matching_post_id( $this->get_shortn_it_url_prefix() . $_REQUEST['string'] );
+		$match_id = $this->shortn_it_get_matching_post_id( $this->get_shortn_it_url_prefix() . $_REQUEST[ 'string' ] );
 		//	If the match's ID is the same as the requested ID, proceed as if there were no match
-		if($match_id == $_REQUEST['id'])
+		if( $match_id == $_REQUEST[ 'id' ] )
 			$match_id = '';
 		//	Echo a JSON string containing a bool of whether or not there was a match, the ID of the matching post, it's title, and the URL to edit that post
 		echo json_encode( array ( 'exists' => ! empty( $match_id ), 'match_id' => $match_id, 'match_title' => get_the_title( $match_id ), 'edit_url' => get_edit_post_link( $match_id ) ) );
@@ -449,7 +468,7 @@ class Shortn_It {
 	
 		$shortn_url = $this->get_shortn_it( $post_id );
 		// Proceed if there is a Shortn.It URL in existance and at lease one of the shorturl or shortlink options are selected
-		if($shortn_url != '' && ( get_option( 'shortn_use_short_url' ) == 'yes' || get_option( 'shortn_use_shortlink' ) == 'yes' )) {
+		if( $shortn_url != '' && ( get_option( 'shortn_use_short_url' ) == 'yes' || get_option( 'shortn_use_shortlink' ) == 'yes' )) {
 			$shortn_it_permalink = $this->get_shortn_it_url_permalink( $post_id );
 			
 			//	Echo the shorturl and shortlink meta tags depending on whether or not the option for each was selected
@@ -537,4 +556,76 @@ class Shortn_It {
 }
 
 $Shortn_It = new Shortn_It();
+
+//	Get the Shortn.It URL for the current post within "the loop"
+if( ! function_exists( 'get_the_shortn_url' ) ) {
+
+	function get_the_shortn_url() {
+
+		$Shortn_It = new Shortn_It();
+		return $Shortn_It->get_the_shortn_url();
+			
+	}
+
+}
+
+//	Echo the Shortn.It URL for the current post within "the loop"
+if( ! function_exists( 'the_shortn_url' ) ) {
+
+	function the_shortn_url() {
+
+		$Shortn_It = new Shortn_It();
+		$Shortn_It->the_shortn_url();
+			
+	}
+
+}
+
+//	Get an anchor tag of the Shortn.It URL for the current post within "the loop"
+if( ! function_exists( 'get_the_shortn_url_link' ) ) {
+
+	function get_the_shortn_url_link() {
+		
+		$Shortn_It = new Shortn_It();
+		return $Shortn_It->get_the_shortn_url_link();
+		
+	}
+	
+}
+
+//	Echo an anchor tag of the Shortn.It URL for the current post within "the loop"
+if( ! function_exists( 'the_shortn_url_link' ) ) {
+
+	function the_shortn_url_link() {
+		
+		$Shortn_It = new Shortn_It();
+		$Shortn_It->the_shortn_url_link();
+		
+	}
+	
+}
+
+//	Get the full Shortn.It URL for the current post within "the loop"
+if( ! function_exists( 'get_the_full_shortn_url' ) ) {
+
+	function get_the_full_shortn_url() {
+
+		$Shortn_It = new Shortn_It();
+		return $Shortn_It->get_the_full_shortn_url();
+			
+	}
+	
+}
+
+//	Echo the full Shortn.It URL for the current post within "the loop"
+if( ! function_exists( 'the_full_shortn_url' ) ) {
+
+	function the_full_shortn_url() {
+
+		$Shortn_It = new Shortn_It();
+		$Shortn_It->the_full_shortn_url();
+			
+	}
+	
+}
 ?>

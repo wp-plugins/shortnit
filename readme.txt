@@ -1,7 +1,7 @@
 === Shortn.It ===
 Contributors: docofmedia
 Donate link: http://docof.me
-Version: 1.4.0
+Version: 1.5.0
 Tags: url shortener, url shortening, shorturl, short_url, shortlink, short permalink, short url, custom short url, custom url
 Requires at least: 2.5
 Tested up to: 4.0
@@ -23,6 +23,15 @@ Shortn.It adds the appropriate tags for <a href="//sites.google.com/a/snaplog.co
 
 Shortn.It provides easy functions for accessing it's generated URLs outside of Shortn.It, in your themes, or other plugins. The `the_full_shortn_url` will output just the full URL, without any formatting, which can be used in various Twitter or other microblogging plugins. `the_shortn_url_link` will output an HTML link using the configuration from Shortn.It's options page.
 
+= Available Template Tags =
+
+* `the_shortn_url_link()` outputs an anchor (a) tag, ex: `<a href="http://docof.me/shortn-it" class="shortn_it" rel="nofollow" title="shortened permalink for this page">http://docof.me/shortn-it</a>`
+* `get_the_shortn_url_link()` retrieves the above anchor for storage in a variable
+* `the_full_shortn_url()` outputs the short URL, ex: `http://docof.me/shortn-it`
+* `get_the_full_shortn_url()` retrieves the above URL for storage in a variable
+* `the_shortn_url()` outputs the short URL without the domain, ex: `shortn-it`
+* `get_the_shortn_url()` retrieves the above URL for storage in a variable
+
 = Docs & Support =
 
 You can find <a href="http://docof.me/shortn-it">help and documentation</a> and more detailed information about Shortn.It on <a href="http://www.docofmedia.com/shortn-it">docofmedia.com</a>. If you were unable to find the answer to your question on the FAQ or in any of the documentation, you should check the <a href="http://wordpress.org/support/plugin/shortnit">support forum</a> on WordPress.org. If you can't locate any topics that pertain to your particular issue, post a new topic for it.
@@ -33,7 +42,7 @@ Installing Shortn.It is a breeze.
 
 1. Upload the `shortn-it` folder to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Edit the post(s) you would like to create a Shortn.It URL for and the URL will be set once you update the post. If you wish, you may add `<?php the_shortn_url_link(); ?>` in your template where you'd like the shortened URL link to show up.
+1. Edit the post(s) you would like to create a Shortn.It URL for and the URL will be set once you update the post. If you wish, you may add `<?php the_shortn_url_link(); ?>` in your template where you'd like the shortened URL link to show up or retrieve it using `<?php $link = get_the_shortn_url_link(); ?>`. If you only need to retrieve the link address, use `<?php $url = get_the_full_shortn_url(); ?>` or `<?php the_full_shortn_url(); ?>` to output it directly.
 1. If you'd like to use a separate, shorter domain for your shortened links, a guide can be found in the <a href="http://docof.me/shortn-it">help and documentation</a>.
 
 == Frequently Asked Questions ==
@@ -53,6 +62,10 @@ The short domain needs to be configured as an alias to your main domain. If you'
 3. Shortn.It's duplicate URL checking
 
 == Changelog ==
+
+= 1.5.0 =
+* FIXED: Template tag functions
+* ADDED: New template tags
 
 = 1.4.0 =
 * IMPROVED: HTTPS detection
