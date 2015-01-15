@@ -31,10 +31,14 @@ define( 'SHORTN_IT_META', '_shortn_it_url' );
 //	Define global(s)
 global $wpdb;
 
-//	Create Shortn.It class
+/**
+ * Create Shortn.It class.
+ */
 class Shortn_It {
 	
-	//	Initialize Short.In options upon activation
+	/**
+	 * Initialize Short.In options upon activation.
+	 */
 	public function __construct() {
 		
 		//	Add Shortn.It option defaults
@@ -77,7 +81,9 @@ class Shortn_It {
 		
 	}
 	
-	//	Redirect incoming Shortn.It URL page requests to the appropriate post
+	/**
+	 * Redirect incoming Shortn.It URL page requests to the appropriate post.
+	 */
 	public function shortn_it_headers() {
 		
 		$current_url = 'http' . ( ( ( ! empty( $_SERVER[ 'HTTPS' ] ) && $_SERVER[ 'HTTPS' ] !== 'off' ) || $_SERVER[ 'SERVER_PORT' ] == 443 ) ? 's' : '' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
@@ -93,22 +99,28 @@ class Shortn_It {
 		else*/ if( $post_id = $this->shortn_it_get_matching_post_id( $_SERVER['REQUEST_URI'] ) ) {
 			$permalink = get_permalink( $post_id );
 			if( $permalink != $current_url ) {
-				header( 'Location: ' . $permalink, true, 302 );
+				wp_redirect( $permalink );
 				exit;
 			}
 		}
 		
 	}
 	
-	//	Get the matching post ID from the given URL
+	/**
+	 * Get the matching post ID from the given URL.
+	 *
+	 * @param string $url A URL to attempt to match
+	 * @return int The matching post ID.
+	 */
 	public function shortn_it_get_matching_post_id( $url ) {
+
 		global $wpdb;
 		
 		//	If the URL doesn't begin with the chosen prefix, return nothing
-		if( stripos( $url, $this->get_shortn_it_url_prefix() ) != 0 ) return '';
-		
 		$url_prefix = $this->get_shortn_it_url_prefix();
-
+		if( stripos( $url, $url_prefix ) != 0 )
+			return '';
+		
 		//	Get the Shortn.It URL by removing the prefix
 		$the_short = substr_replace( $url, '', 0, strlen( $url_prefix ) );
 		
@@ -118,6 +130,7 @@ class Shortn_It {
 
 		$the_short = substr_replace( $url, '', 0, strlen( $url_prefix ) );
 
+		//	If we're allowing a trailing slash, remove it to allow for a match.
 		if( $this->get_shortn_it_allow_slash() )
 			$the_short = rtrim( $the_short, '/' );
 		
@@ -126,7 +139,11 @@ class Shortn_It {
 			
 	}
 	
-	//	Get the Shortn.It URL prefix (if there is one)
+	/**
+	 * Get the Shortn.It URL prefix (if there is one).
+	 *
+	 * @return string The Shortn.It URL prefix.
+	 */
 	public function get_shortn_it_url_prefix() {
 		
 		//	If a custom prefix has been chosen, return the prefix, or else return the base "/"
@@ -137,14 +154,23 @@ class Shortn_It {
 			
 	}
 	
-	//	Get boolean value value of the `allow slash` option
+	/**
+	 * Get boolean value value of the `allow slash` option.
+	 *
+	 * @return bool Whether the `allow slash` option is set to 'yes'.
+	 */
 	public function get_shortn_it_allow_slash() {
 		
 		return( get_option( 'shortn_it_allow_slash' ) == 'yes' );
 			
 	}
 	
-	//	Get the complete Shortn.It URL
+	/**
+	 * Get the complete Shortn.It URL.
+	 *
+	 * @param int $post_id A post ID.
+	 * @return string The full Shortn.It URL.
+	 */
 	public function get_shortn_it_url_permalink( $post_id ) {
 		
 		//	Get the Shortn.It URL
@@ -158,7 +184,12 @@ class Shortn_It {
 			
 	}
 	
-	//	Get the Shortn.It URL for the post
+	/**
+	 * Get the relative Shortn.It URL for the post.
+	 *
+	 * @param int $post_id A post ID.
+	 * @return string The relative Shortn.It URL.
+	 */
 	public function get_shortn_it( $post_id ) {
 		
 		//	If no post ID was provided, return nothing
@@ -182,15 +213,21 @@ class Shortn_It {
 		
 	}
 	
-	//	Generate a Shortn.It URL and add it to the post meta
+	/**
+	 * Generate a Shortn.It URL and add it to the post meta.
+	 */
 	private function shortn_it_make_url( $post ) {
 		
-		if($post != '' )
+		if( $post != '' )
 			update_post_meta($post, SHORTN_IT_META, $this->shortn_it_generate_string() );
 			
 	}
 	
-	//	Generate a random Shortn.It URL that fits the chosen criteria
+	/**
+	 * Generate a random Shortn.It URL that fits the chosen criteria
+	 *
+	 * @return string A random Shortn.It URL.
+	 */
 	private function shortn_it_generate_string() {
 		
 		$length = get_option( 'shortn_it_length' );
@@ -236,7 +273,12 @@ class Shortn_It {
 		
 	}
 	
-	//	Check if a string matches an existing Shortn.It URL
+	/**
+	 * Check if a string matches an existing Shortn.It URL.
+	 * 
+	 * @param string $the_short A URL string.
+	 * @return bool Whether a match was found.
+	 */
 	private function shortn_it_check_url( $the_short ) {
 		
 		global $wpdb;
@@ -253,7 +295,11 @@ class Shortn_It {
 		
 	}
 	
-	//	Get the Shortn.It domain chosen in the options
+	/**
+	 * Get the Shortn.It domain chosen in the options.
+	 * 
+	 * @return string Shortn.It domain.
+	 */
 	public function get_shortn_it_domain() {
 		
 		$shortn_it_permalink_domain = get_option( 'shortn_it_permalink_domain' );
@@ -267,7 +313,11 @@ class Shortn_It {
 			
 	}
 	
-	//	Enqueue scripts and styles to be used on post edit and creation pages
+	/**
+	 * Enqueue scripts and styles to be used on post edit and creation pages.
+	 *
+	 * @param string $hook_suffix The current admin page.
+	 */
 	public function shortn_it_enqueue_edit_scripts( $hook_suffix ) {
 		
 		//	Enqueue the scripts only on "post.php" and "post-new.php"
@@ -282,7 +332,9 @@ class Shortn_It {
 		
 	}
 	
-	//	Add side meta boxes on post edit and creation pages
+	/**
+	 * Add side meta boxes on post edit and creation pages.
+	 */
 	public function shortn_it_sidebar() {
 		
 		//	For compaitibility with older versions of WP, check if the "add_meta_box" functionality exists, if not then do it the old way
@@ -298,7 +350,9 @@ class Shortn_It {
 		}
 	}
 	
-	//	Generate the content within the Shortn.It meta box
+	/**
+	 * Generate the content within the Shortn.It meta box.
+	 */
 	public function shortn_it_generate_sidebar() {
 		
 		//	Get the id of the currently edited post
@@ -331,14 +385,20 @@ class Shortn_It {
 			}
 	}
 	
-	//	Register the Shortn.It sidebar widget
+	/**
+	 * Register the Shortn.It sidebar widget.
+	 */
 	public function shortn_it_url_widget_init() {
 		
 		wp_register_sidebar_widget( 'shortn-it-sidebar-widget', __( 'Shortn.It', 'shortn_it_textdomain' ), 'shortn_it_url_widget' );
 		
 	}
 	
-	//	Wrap the content for the Shortn.It sidebar widget appropriately
+	/**
+	 * Wrap the content for the Shortn.It sidebar widget appropriately.
+	 *
+	 * @param string|array $args Optional args.
+	 */
 	private function shortn_it_url_widget( $args ) {
 		
 		extract( $args );
@@ -349,7 +409,9 @@ class Shortn_It {
 		
 	}
 	
-	//	Populate the content for the Shortn.It sidebar widget
+	/**
+	 * Populate the content for the Shortn.It sidebar widget.
+	 */
 	private function shortn_it_url_widget_content() {
 		
 		echo '<p>This post\'s short url is <a href="';
@@ -360,21 +422,31 @@ class Shortn_It {
 		
 	}
 	
-	//	Get the Shortn.It URL for the current post within "the loop"
+	/**
+	 * Get the Shortn.It URL for the current post within "the loop".
+	 *
+	 * @return string Shortn.It URL for the current post.
+	 */
 	public function get_the_shortn_url() {
 
 		return $this->get_shortn_it( get_the_ID() );
 			
 	}
 	
-	//	Echo the Shortn.It URL for the current post within "the loop"
+	/**
+	 * Echo the Shortn.It URL for the current post within "the loop".
+	 */
 	public function the_shortn_url() {
 	
 		echo $this->get_the_shortn_url();
 			
 	}
 	
-	//	Get an anchor tag of the Shortn.It URL for the current post within "the loop"
+	/**
+	 * Get an anchor tag of the Shortn.It URL for the current post within "the loop".
+	 *
+	 * @return string Anchor tag of the Shortn.It URL.
+	 */
 	public function get_the_shortn_url_link() {
 		
 		$post_id = get_the_ID();
@@ -392,14 +464,20 @@ class Shortn_It {
 		
 	}
 	
-	//	Echo an anchor tag of the Shortn.It URL for the current post within "the loop"
+	/**
+	 * Echo an anchor tag of the Shortn.It URL for the current post within "the loop".
+	 */
 	public function the_shortn_url_link() {
 		
 		echo $this->get_the_shortn_url_link();
 		
 	}
 	
-	//	Get the full Shortn.It URL for the current post within "the loop"
+	/**
+	 * Get the full Shortn.It URL for the current post within "the loop".
+	 *
+	 * @return string Post's Shortn.It URL.
+	 */
 	public function get_the_full_shortn_url() {
 	
 		$post_id = get_the_ID();
@@ -412,14 +490,21 @@ class Shortn_It {
 			
 	}
 	
-	//	Echo the full Shortn.It URL for the current post within "the loop"
+	/**
+	 * Echo the full Shortn.It URL for the current post within "the loop".
+	 */
 	public function the_full_shortn_url() {
 	
 		echo $this->get_the_full_shortn_url();
 			
 	}
 	
-	//	Update the Shortn.It URL meta once the post has been saved
+	/**
+	 * Update the Shortn.It URL meta once the post has been saved.
+	 *
+	 * @param int $post_id ID of post.
+	 * @return string Post's Shortn.It URL.
+	 */
 	public function shortn_it_save_url( $post_id ) {
 		
 		// verify this came from the our screen and with proper authorization.
@@ -441,7 +526,9 @@ class Shortn_It {
 		
 	}
 	
-	//	Return a JSON string with matching post information (for use with "admin-ajax.php")
+	/**
+	 * Output a JSON string with matching post information (for use with "admin-ajax.php").
+	 */
 	public function shortn_it_json_check_url() {
 		
 		//	If the nonce doesn't match up, too bad
@@ -461,7 +548,9 @@ class Shortn_It {
 		
 	}
 	
-	//	Add the shorturl and shortlink meta tags to the page header
+	/**
+	 * Add the shorturl and shortlink meta tags to the page header.
+	 */
 	public function shortn_it_short_url_header() {
 	
 		$post_id = get_the_ID();
@@ -480,14 +569,26 @@ class Shortn_It {
 		
 	}
 	
-	//	Return the Shortn.It URL instead of WP's built-in shortlinks
+	/**
+	 * Return the Shortn.It URL instead of WP's built-in shortlinks.
+	 *
+	 * @param string $link   	  Shortlink URL.
+     * @param int    $id          Post ID, or 0 for the current post.
+     * @param string $context     The context for the link. One of 'post' or 'query'.
+	 * @return string Post's Shortn.It URL
+	 */
 	public function shortn_it_get_shortlink( $link, $id, $context ) {
 		
 		return $this->get_shortn_it_url_permalink( $id );
 		
 	}
 	
-	//	Return the Shortn.It URL matching the long post URL
+	/**
+	 * Return the Shortn.It URL matching the long post URL.
+	 *
+	 * @param string $long Full length URL for post.
+	 * @return string Post's Shortn.It URL
+	 */
 	public function get_shortn_it_url_from_long_url( $long ) {
 		
 		//	Get the post ID from its long URL
@@ -497,7 +598,9 @@ class Shortn_It {
 		
 	}
 	
-	//	Add an options page to the settings in the admin backend
+	/**
+	 * Add an options page to the settings in the admin backend.
+	 */
 	public function shortn_it_admin_panel() {
 		
 		//	Register the Shortn.It options page
@@ -508,15 +611,22 @@ class Shortn_It {
 			add_filter( 'plugin_action_links_' . __FILE__, array( &$this, 'shortn_it_plugin_actions' ), 10, 2 );
 	}
 	
-	//	Get the Shortn.It settings page from "shortn-it-options.php"
+	/**
+	 * Get the Shortn.It settings page from "shortn-it-options.php".
+	 */
 	public function shortn_it_settings() {
 		
 		require_once( 'shortn-it-options.php' );
 		
 	}
 	
-	//	Build the link to the Shortn.It admin options page
-	// Thanks to //wpengineer.com/how-to-improve-wordpress-plugins/ for instructions on adding the Settings link
+	/**
+	 * Build the link to the Shortn.It admin options page.
+	 * Thanks to //wpengineer.com/how-to-improve-wordpress-plugins/ for instructions on adding the Settings link.
+	 *
+	 * @link //wpengineer.com/how-to-improve-wordpress-plugins/
+	 * @param $links Plugin links array
+	 */
 	public function shortn_it_plugin_actions( $links ) {
 		
 		$settings_link = '<a href="options-general.php?page=shortnit/shortn-it-options.php">' . __( 'Settings', 'shortn_it_textdomain' ) . '</a>';
@@ -525,7 +635,9 @@ class Shortn_It {
 		
 	}
 	
-	//	Store whether the Shortn.It plugin was activated and when
+	/**
+	 * Store whether the Shortn.It plugin was activated and when.
+	 */
 	public function shortn_it_register() {
 		
 		update_option( 'shortn_it_registered', 'yes' );
@@ -533,7 +645,11 @@ class Shortn_It {
 		
 	}
 	
-	//	Change the option to show/hide GoDaddy referral links
+	/**
+	 * Change the option to show/hide GoDaddy referral links.
+	 * 
+	 * @param string $option 'yes'/'no' value to update option.
+	 */
 	public function shortn_it_hide_godaddy( $option ) {
 		
 		if( $option == 'yes' )
@@ -542,8 +658,12 @@ class Shortn_It {
 			update_option( 'shortn_it_hide_godaddy', 'no' );
 			
 	}
-	
-	//	Change the option to show/hide donation request links
+
+	/**
+	 * Change the option to show/hide donation request links.
+	 * 
+	 * @param $option 'yes'/'no' value to update option.
+	 */
 	public function shortn_it_hide_nag( $option ) {
 		
 		if( $option == 'yes' )
@@ -557,7 +677,11 @@ class Shortn_It {
 
 $Shortn_It = new Shortn_It();
 
-//	Get the Shortn.It URL for the current post within "the loop"
+/**
+ * Get the relative Shortn.It URL for the current post within "the loop".
+ *
+ * @return string The relative Shortn.It URL.
+ */
 if( ! function_exists( 'get_the_shortn_url' ) ) {
 
 	function get_the_shortn_url() {
@@ -569,7 +693,9 @@ if( ! function_exists( 'get_the_shortn_url' ) ) {
 
 }
 
-//	Echo the Shortn.It URL for the current post within "the loop"
+/**
+ * Output the relative Shortn.It URL for the current post within "the loop".
+ */
 if( ! function_exists( 'the_shortn_url' ) ) {
 
 	function the_shortn_url() {
@@ -581,7 +707,11 @@ if( ! function_exists( 'the_shortn_url' ) ) {
 
 }
 
-//	Get an anchor tag of the Shortn.It URL for the current post within "the loop"
+/**
+ * Get an anchor tag of the Shortn.It URL for the current post within "the loop".
+ *
+ * @return string Anchor tag of the Shortn.It URL.
+ */
 if( ! function_exists( 'get_the_shortn_url_link' ) ) {
 
 	function get_the_shortn_url_link() {
@@ -593,7 +723,9 @@ if( ! function_exists( 'get_the_shortn_url_link' ) ) {
 	
 }
 
-//	Echo an anchor tag of the Shortn.It URL for the current post within "the loop"
+/**
+ * Output an anchor tag of the Shortn.It URL for the current post within "the loop".
+ */
 if( ! function_exists( 'the_shortn_url_link' ) ) {
 
 	function the_shortn_url_link() {
@@ -605,7 +737,11 @@ if( ! function_exists( 'the_shortn_url_link' ) ) {
 	
 }
 
-//	Get the full Shortn.It URL for the current post within "the loop"
+/**
+ * Get the full Shortn.It URL for the current post within "the loop".
+ *
+ * @return string The full Shortn.It URL.
+ */
 if( ! function_exists( 'get_the_full_shortn_url' ) ) {
 
 	function get_the_full_shortn_url() {
@@ -617,7 +753,9 @@ if( ! function_exists( 'get_the_full_shortn_url' ) ) {
 	
 }
 
-//	Echo the full Shortn.It URL for the current post within "the loop"
+/**
+ * Output the full Shortn.It URL for the current post within "the loop".
+ */
 if( ! function_exists( 'the_full_shortn_url' ) ) {
 
 	function the_full_shortn_url() {
