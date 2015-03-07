@@ -18,8 +18,10 @@ $shortn_it_hide_godaddy = get_option( 'shortn_it_hide_godaddy' );
 //	Generate an example Shortn.It URL
 $shortn_it_example_url = $Shortn_It->shortn_it_generate_string();
 
-//	Store Shortn.It domain for later use
+//	Store Shortn.It base url for later use
 $shortn_it_domain = $Shortn_It->get_shortn_it_domain();
+$shortn_it_base_path = $Shortn_It->get_shortn_it_base_path();
+$shortn_it_base = $Shortn_It->get_shortn_it_base_url();
 
 ?>
 <style type="text/css">
@@ -74,11 +76,11 @@ $shortn_it_domain = $Shortn_It->get_shortn_it_domain();
 						<p><label class="radio"><input name="shortn_it_permalink_prefix" type="radio" value="default" <?php if( $shortn_it_permalink_prefix == 'default' ) { echo 'checked="checked"'; } ?> class="tog"> Default (No Prefix)</label></p>
 						<p><label class="radio"><input name="shortn_it_permalink_prefix" type="radio" value="custom" class="tog" <?php if( $shortn_it_permalink_prefix != 'default' ) { echo 'checked="checked"'; } ?>/>Custom Prefix</label></p>
 						
-						<p id="custom-prefix-input" <?php if( $shortn_it_permalink_prefix == 'default' ) { echo 'style="display: none;"'; } ?>><?php echo $shortn_it_domain; ?><input name="shortn_it_permalink_custom" style="width: 196px;" id="shortn_it_permalink_custom" type="text" value="<?php echo $shortn_it_permalink_custom; ?>" class="regular-text code"></p>
+						<p id="custom-prefix-input" <?php if( $shortn_it_permalink_prefix == 'default' ) { echo 'style="display: none;"'; } ?>><?php echo $shortn_it_base; ?><input name="shortn_it_permalink_custom" style="width: 196px;" id="shortn_it_permalink_custom" type="text" value="<?php echo $shortn_it_permalink_custom; ?>" class="regular-text code"></p>
 					</div>
 					<div class="shortn-look-like">
 						<h3>Your short URLs will look like:</h3>
-						<p><span class="domain"><?php echo str_replace( 'http://' , '', $shortn_it_domain ); ?></span><span class="prefix"><?php echo ( $shortn_it_permalink_prefix != 'default' ) ? $shortn_it_permalink_custom : '/'; ?></span><span class="url"><?php echo $shortn_it_example_url; ?></span></p>
+						<p><span class="domain"><?php echo $shortn_it_domain; ?></span><?php echo $shortn_it_base_path; ?><span class="prefix"><?php echo ( $shortn_it_permalink_prefix != 'default' ) ? ltrim( $shortn_it_permalink_custom, '/' ) : ''; ?></span><span class="url"><?php echo $shortn_it_example_url; ?></span></p>
 						<label for="shortn_it_allow_slash" class="checkbox">
 							<input name="shortn_it_allow_slash" type="checkbox" id="shortn_it_allow_slash" value='yes' <?php if( get_option( 'shortn_it_allow_slash' ) == 'yes' ) { echo 'checked="checked"'; } ?>>
 							Allow short URLs with trailing slashes to work as well</label>
@@ -114,7 +116,7 @@ $shortn_it_domain = $Shortn_It->get_shortn_it_domain();
 					
 					<div class="shortn-look-like">
 						<h3>Your short URLs will look like:</h3>
-						<p><span class="domain"><?php echo str_replace( 'http://', '', $shortn_it_domain ); ?></span><span class="prefix"><?php echo ( $shortn_it_permalink_prefix != 'default' ) ? $shortn_it_permalink_custom : '/'; ?></span><span class="url"><?php echo $shortn_it_example_url; ?></span></p>
+						<p><span class="domain"><?php echo str_replace( 'http://', '', $shortn_it_base ); ?></span><span class="prefix"><?php echo ( $shortn_it_permalink_prefix != 'default' ) ? $shortn_it_permalink_custom : '/'; ?></span><span class="url"><?php echo $shortn_it_example_url; ?></span></p>
 					</div>
 				</div>
 					
