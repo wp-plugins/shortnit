@@ -242,7 +242,7 @@ class Shortn_It {
 
 		if( $post_id != '' ) {
 			$short = $this->shortn_it_generate_string();
-			return ! update_post_meta( $post_id, SHORTN_IT_META, $short ) ?: $short;
+			return ! update_post_meta( $post_id, SHORTN_IT_META, $short ) ? false : $short;
 		}
 
 		return false;
