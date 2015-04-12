@@ -1,7 +1,7 @@
 === Shortn.It ===
 Contributors: docofmedia
 Donate link: http://docof.me
-Version: 1.6.0
+Version: 1.7.0
 Tags: url shortener, url shortening, shorturl, short_url, shortlink, short permalink, short url, custom short url, custom url
 Requires at least: 2.5
 Tested up to: 4.1.1
