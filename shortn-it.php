@@ -74,18 +74,18 @@ class Shortn_It {
 		add_option( 'shortn_it_hide_nag', 'yes' );
 
 		//	Create necessary actions
-		add_action( 'init', array( &$this, 'shortn_it_headers' ) );
-		add_action( 'admin_enqueue_scripts', array( &$this, 'shortn_it_enqueue_edit_scripts' ) );
-		add_action( 'admin_menu', array( &$this, 'shortn_it_admin_panel' ) );
-		add_action( 'admin_menu', array( &$this, 'shortn_it_sidebar' ) );
-		add_action( 'plugins_loaded', array( &$this, 'shortn_it_url_widget_init' ) );
-		add_action( 'save_post', array( &$this, 'shortn_it_save_url' ) );
-		add_action( 'wp_ajax_shortn_it_json_check_url', array( &$this, 'shortn_it_json_check_url' ) );
-		add_action( 'wp_head', array( &$this, 'shortn_it_short_url_header' ) );
+		add_action( 'init', [ &$this, 'shortn_it_headers' ] );
+		add_action( 'admin_enqueue_scripts', [ &$this, 'shortn_it_enqueue_edit_scripts' ] );
+		add_action( 'admin_menu', [ &$this, 'shortn_it_admin_panel' ] );
+		add_action( 'admin_menu', [ &$this, 'shortn_it_sidebar' ] );
+		add_action( 'plugins_loaded', [ &$this, 'shortn_it_url_widget_init' ] );
+		add_action( 'save_post', [ &$this, 'shortn_it_save_url' ] );
+		add_action( 'wp_ajax_shortn_it_json_check_url', [ &$this, 'shortn_it_json_check_url' ] );
+		add_action( 'wp_head', [ &$this, 'shortn_it_short_url_header' ] );
 
 		//	Create necessary filters
-		add_filter( 'get_shortlink', array( &$this, 'shortn_it_get_shortlink' ), 10, 3 );
-		add_filter( 'tweet_blog_post_url', array( &$this, 'get_shortn_it_url_from_long_url' ) );        // Support for Twitter Tools by Crowd Favorite
+		add_filter( 'get_shortlink', [ &$this, 'shortn_it_get_shortlink' ], 10, 3 );
+		add_filter( 'tweet_blog_post_url', [ &$this, 'get_shortn_it_url_from_long_url' ] );        // Support for Twitter Tools by Crowd Favorite
 
 	}
 
@@ -94,7 +94,10 @@ class Shortn_It {
 	 */
 	public function shortn_it_headers() {
 
-		$current_url = 'http' . ( ( ( ! empty( $_SERVER[ 'HTTPS' ] ) && $_SERVER[ 'HTTPS' ] !== 'off' ) || $_SERVER[ 'SERVER_PORT' ] == 443 ) ? 's' : '' ) . '://' . $_SERVER[ 'HTTP_HOST' ] . $_SERVER[ 'REQUEST_URI' ];
+		// Get the requested relative URL up to the query string or hash
+		$current_rel_url = strtok( strtok( $_SERVER[ 'REQUEST_URI' ], '?' ), '#' );
+		// Build a permalink-like version of the curent URL (without query or hash)
+		$current_url = 'http' . ( ( ( ! empty( $_SERVER[ 'HTTPS' ] ) && $_SERVER[ 'HTTPS' ] !== 'off' ) || $_SERVER[ 'SERVER_PORT' ] == 443 ) ? 's' : '' ) . '://' . $_SERVER[ 'HTTP_HOST' ] . $current_rel_url;
 
 		//	TODO Add shortlink HTTP header if desired and post has a short URL
 		/*if( get_option( 'shortn_use_shortlink_header' ) == 'yes' && $post_id = url_to_postid( $current_url ) ) {
@@ -105,10 +108,11 @@ class Shortn_It {
 		}
 		//	Unable to match a post, so determine if this is a short link that needs redirecting
 		else*/
-		if( $post_id = $this->shortn_it_get_matching_post_id( $_SERVER[ 'REQUEST_URI' ] ) ) {
+		if( $post_id = $this->shortn_it_get_matching_post_id( $current_rel_url ) ) {
 			$permalink = get_permalink( $post_id );
 			if( $permalink != $current_url ) {
-				wp_redirect( $permalink );
+				// Redirect to the full permalink URL and re-add the query and hash
+				wp_redirect( $permalink . str_replace( $current_rel_url, '', $_SERVER[ 'REQUEST_URI' ] ) );
 				exit;
 			}
 		}
@@ -226,6 +230,7 @@ class Shortn_It {
 		//	Or else make a Shortn.It URL, add it to the post meta, and return it
 		else {
 			$shortn_url = $this->shortn_it_make_url( $post_id );
+
 			return $shortn_url;
 		}
 
@@ -242,6 +247,7 @@ class Shortn_It {
 
 		if( $post_id != '' ) {
 			$short = $this->shortn_it_generate_string();
+
 			return ! update_post_meta( $post_id, SHORTN_IT_META, $short ) ? false : $short;
 		}
 
@@ -357,9 +363,9 @@ class Shortn_It {
 		//	Enqueue the scripts only on "post.php" and "post-new.php"
 		if( 'post.php' == $hook_suffix || 'post-new.php' == $hook_suffix ) {
 			//	Enqueue Javascript
-			wp_enqueue_script( 'shortn_it_edit_scripts', plugins_url( 'js/shortn-it.js', __FILE__ ), array( 'jquery' ) );
+			wp_enqueue_script( 'shortn_it_edit_scripts', plugins_url( 'js/shortn-it.js', __FILE__ ), [ 'jquery' ] );
 			//	Pass "admin-ajax.php" URL for use in Javascript
-			wp_localize_script( 'shortn_it_edit_scripts', 'vars', array( 'ajax' => admin_url( 'admin-ajax.php' ) ) );
+			wp_localize_script( 'shortn_it_edit_scripts', 'vars', [ 'ajax' => admin_url( 'admin-ajax.php' ) ] );
 			//	Enqueue CSS
 			wp_enqueue_style( 'shortn_it_edit_scripts', plugins_url( 'css/shortn-it.css', __FILE__ ) );
 		}
@@ -374,14 +380,14 @@ class Shortn_It {
 		//	For compaitibility with older versions of WP, check if the "add_meta_box" functionality exists, if not then do it the old way
 		if( function_exists( 'add_meta_box' ) ) {
 			//	Use "add_meta_box" to create the meta box for public post types
-			$post_types = get_post_types( array( 'public' => true ) );
+			$post_types = get_post_types( [ 'public' => true ] );
 			foreach( $post_types as $post_type ) {
-				add_meta_box( 'shortn_it_box', __( 'Shortn.It', 'shortn_it_textdomain' ), array( &$this, 'shortn_it_generate_sidebar' ), $post_type, 'side', 'high' );
+				add_meta_box( 'shortn_it_box', __( 'Shortn.It', 'shortn_it_textdomain' ), [ &$this, 'shortn_it_generate_sidebar' ], $post_type, 'side', 'high' );
 			}
 		} else {
 			//	For older versions, add the meta box to post and page edit/create pages
-			add_action( 'dbx_post_sidebar', array( &$this, 'shortn_it_generate_sidebar' ) );
-			add_action( 'dbx_page_sidebar', array( &$this, 'shortn_it_generate_sidebar' ) );
+			add_action( 'dbx_post_sidebar', [ &$this, 'shortn_it_generate_sidebar' ] );
+			add_action( 'dbx_page_sidebar', [ &$this, 'shortn_it_generate_sidebar' ] );
 		}
 	}
 
@@ -583,7 +589,7 @@ class Shortn_It {
 		if( $match_id == $_REQUEST[ 'id' ] )
 			$match_id = '';
 		//	Echo a JSON string containing a bool of whether or not there was a match, the ID of the matching post, it's title, and the URL to edit that post
-		echo json_encode( array( 'exists' => ! empty( $match_id ), 'match_id' => $match_id, 'match_title' => get_the_title( $match_id ), 'edit_url' => get_edit_post_link( $match_id ) ) );
+		echo json_encode( [ 'exists' => ! empty( $match_id ), 'match_id' => $match_id, 'match_title' => get_the_title( $match_id ), 'edit_url' => get_edit_post_link( $match_id ) ] );
 		die();
 
 	}
@@ -602,9 +608,9 @@ class Shortn_It {
 
 			//	Echo the shorturl and shortlink meta tags depending on whether or not the option for each was selected
 			echo '	<!-- Shortn.It version ' . SHORTN_IT_VERSION . " -->\n" .
-				( ( get_option( 'shortn_use_short_url' ) == 'yes' ) ? "\t" . '<link rel="shorturl" href="' . $shortn_it_permalink . '">' . "\n" : '' ) .
-				( ( get_option( 'shortn_use_shortlink' ) == 'yes' ) ? "\t" . '<link rel="shortlink" href="' . $shortn_it_permalink . '">' . "\n" : '' ) .
-				"\t" . '<!-- End Shortn.It -->' . "\n";
+			     ( ( get_option( 'shortn_use_short_url' ) == 'yes' ) ? "\t" . '<link rel="shorturl" href="' . $shortn_it_permalink . '">' . "\n" : '' ) .
+			     ( ( get_option( 'shortn_use_shortlink' ) == 'yes' ) ? "\t" . '<link rel="shortlink" href="' . $shortn_it_permalink . '">' . "\n" : '' ) .
+			     "\t" . '<!-- End Shortn.It -->' . "\n";
 		}
 
 	}
@@ -647,11 +653,11 @@ class Shortn_It {
 	public function shortn_it_admin_panel() {
 
 		//	Register the Shortn.It options page
-		add_options_page( 'Shortn.It', 'Shortn.It', 'manage_options', 'shortnit/shortn-it-options.php', array( &$this, 'shortn_it_settings' ) );
+		add_options_page( 'Shortn.It', 'Shortn.It', 'manage_options', 'shortnit/shortn-it-options.php', [ &$this, 'shortn_it_settings' ] );
 
 		//	If the current user has permission to at least edit posts, add a link to the settings menu
 		if( current_user_can( 'edit_posts' ) && function_exists( 'add_submenu_page' ) )
-			add_filter( 'plugin_action_links_' . __FILE__, array( &$this, 'shortn_it_plugin_actions' ), 10, 2 );
+			add_filter( 'plugin_action_links_' . __FILE__, [ &$this, 'shortn_it_plugin_actions' ], 10, 2 );
 	}
 
 	/**
@@ -676,7 +682,7 @@ class Shortn_It {
 	public function shortn_it_plugin_actions( $links ) {
 
 		$settings_link = '<a href="options-general.php?page=shortnit/shortn-it-options.php">' . __( 'Settings', 'shortn_it_textdomain' ) . '</a>';
-		$links = array_merge( array( $settings_link ), $links ); // before other links
+		$links = array_merge( [ $settings_link ], $links ); // before other links
 		return $links;
 
 	}
