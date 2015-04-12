@@ -4,7 +4,7 @@ Plugin Name: Shortn.It
 Plugin URI: http://docof.me/shortn-it
 Help & Support: http://docof.me/shortn-it
 Description: Personal, customized URL shortening for WordPress.
-Version: 1.6.0
+Version: 1.7.0
 Author: David Cochrum
 Author URI: http://www.docofmedia.com/
 
@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //	Define constant(s)
 define( 'SHORTN_IT_META', '_shortn_it_url' );
-define( 'SHORTN_IT_VERSION', '1.6.0' );
+define( 'SHORTN_IT_VERSION', '1.7.0' );
 
 //	Define global(s)
 global $wpdb;
@@ -50,7 +50,6 @@ class Shortn_It {
 		$this->base_path = trailingslashit( parse_url( get_bloginfo( 'url' ), PHP_URL_PATH ) );
 
 		//	Add Shortn.It option defaults
-		add_option( 'shortn_it_version', '1.6.0' );
 		add_option( 'shortn_it_use_mobile_style', 'yes' );
 		add_option( 'shortn_it_link_text', 'shortn url' );
 		add_option( 'shortn_it_permalink_prefix', 'default' );
@@ -259,7 +258,7 @@ class Shortn_It {
 	 *
 	 * @return string A random Shortn.It URL.
 	 */
-	private function shortn_it_generate_string() {
+	public function shortn_it_generate_string() {
 
 		$length = get_option( 'shortn_it_length' );
 		$valid_chars = '';
