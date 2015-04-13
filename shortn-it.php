@@ -4,7 +4,7 @@ Plugin Name: Shortn.It
 Plugin URI: http://docof.me/shortn-it
 Help & Support: http://docof.me/shortn-it
 Description: Personal, customized URL shortening for WordPress.
-Version: 1.7.1
+Version: 1.7.2
 Author: David Cochrum
 Author URI: http://www.docofmedia.com/
 
@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //	Define constant(s)
 define( 'SHORTN_IT_META', '_shortn_it_url' );
-define( 'SHORTN_IT_VERSION', '1.7.1' );
+define( 'SHORTN_IT_VERSION', '1.7.2' );
 
 //	Define global(s)
 global $wpdb;
@@ -588,8 +588,7 @@ class Shortn_It {
 		if( $match_id == $_REQUEST[ 'id' ] )
 			$match_id = '';
 		//	Echo a JSON string containing a bool of whether or not there was a match, the ID of the matching post, it's title, and the URL to edit that post
-		echo json_encode( [ 'exists' => ! empty( $match_id ), 'match_id' => $match_id, 'match_title' => get_the_title( $match_id ), 'edit_url' => get_edit_post_link( $match_id ) ] );
-		die();
+		die( json_encode( array( 'exists' => ! empty( $match_id ), 'match_id' => $match_id, 'match_title' => get_the_title( $match_id ), 'edit_url' => get_edit_post_link( $match_id ) ) ) );
 
 	}
 
