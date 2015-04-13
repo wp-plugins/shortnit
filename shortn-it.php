@@ -4,7 +4,7 @@ Plugin Name: Shortn.It
 Plugin URI: http://docof.me/shortn-it
 Help & Support: http://docof.me/shortn-it
 Description: Personal, customized URL shortening for WordPress.
-Version: 1.7.0
+Version: 1.7.1
 Author: David Cochrum
 Author URI: http://www.docofmedia.com/
 
@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //	Define constant(s)
 define( 'SHORTN_IT_META', '_shortn_it_url' );
-define( 'SHORTN_IT_VERSION', '1.7.0' );
+define( 'SHORTN_IT_VERSION', '1.7.1' );
 
 //	Define global(s)
 global $wpdb;
