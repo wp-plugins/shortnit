@@ -73,18 +73,18 @@ class Shortn_It {
 		add_option( 'shortn_it_hide_nag', 'yes' );
 
 		//	Create necessary actions
-		add_action( 'init', [ &$this, 'shortn_it_headers' ] );
-		add_action( 'admin_enqueue_scripts', [ &$this, 'shortn_it_enqueue_edit_scripts' ] );
-		add_action( 'admin_menu', [ &$this, 'shortn_it_admin_panel' ] );
-		add_action( 'admin_menu', [ &$this, 'shortn_it_sidebar' ] );
-		add_action( 'plugins_loaded', [ &$this, 'shortn_it_url_widget_init' ] );
-		add_action( 'save_post', [ &$this, 'shortn_it_save_url' ] );
-		add_action( 'wp_ajax_shortn_it_json_check_url', [ &$this, 'shortn_it_json_check_url' ] );
-		add_action( 'wp_head', [ &$this, 'shortn_it_short_url_header' ] );
+		add_action( 'init', array( &$this, 'shortn_it_headers' ) );
+		add_action( 'admin_enqueue_scripts', array( &$this, 'shortn_it_enqueue_edit_scripts' ) );
+		add_action( 'admin_menu', array( &$this, 'shortn_it_admin_panel' ) );
+		add_action( 'admin_menu', array( &$this, 'shortn_it_sidebar' ) );
+		add_action( 'plugins_loaded', array( &$this, 'shortn_it_url_widget_init' ) );
+		add_action( 'save_post', array( &$this, 'shortn_it_save_url' ) );
+		add_action( 'wp_ajax_shortn_it_json_check_url', array( &$this, 'shortn_it_json_check_url' ) );
+		add_action( 'wp_head', array( &$this, 'shortn_it_short_url_header' ) );
 
 		//	Create necessary filters
-		add_filter( 'get_shortlink', [ &$this, 'shortn_it_get_shortlink' ], 10, 3 );
-		add_filter( 'tweet_blog_post_url', [ &$this, 'get_shortn_it_url_from_long_url' ] );        // Support for Twitter Tools by Crowd Favorite
+		add_filter( 'get_shortlink', array( &$this, 'shortn_it_get_shortlink' ), 10, 3 );
+		add_filter( 'tweet_blog_post_url', array( &$this, 'get_shortn_it_url_from_long_url' ) );        // Support for Twitter Tools by Crowd Favorite
 
 	}
 
@@ -362,9 +362,9 @@ class Shortn_It {
 		//	Enqueue the scripts only on "post.php" and "post-new.php"
 		if( 'post.php' == $hook_suffix || 'post-new.php' == $hook_suffix ) {
 			//	Enqueue Javascript
-			wp_enqueue_script( 'shortn_it_edit_scripts', plugins_url( 'js/shortn-it.js', __FILE__ ), [ 'jquery' ] );
+			wp_enqueue_script( 'shortn_it_edit_scripts', plugins_url( 'js/shortn-it.js', __FILE__ ), array( 'jquery' ) );
 			//	Pass "admin-ajax.php" URL for use in Javascript
-			wp_localize_script( 'shortn_it_edit_scripts', 'vars', [ 'ajax' => admin_url( 'admin-ajax.php' ) ] );
+			wp_localize_script( 'shortn_it_edit_scripts', 'vars', array( 'ajax' => admin_url( 'admin-ajax.php' ) ) );
 			//	Enqueue CSS
 			wp_enqueue_style( 'shortn_it_edit_scripts', plugins_url( 'css/shortn-it.css', __FILE__ ) );
 		}
@@ -379,14 +379,14 @@ class Shortn_It {
 		//	For compaitibility with older versions of WP, check if the "add_meta_box" functionality exists, if not then do it the old way
 		if( function_exists( 'add_meta_box' ) ) {
 			//	Use "add_meta_box" to create the meta box for public post types
-			$post_types = get_post_types( [ 'public' => true ] );
+			$post_types = get_post_types( array( 'public' => true ) );
 			foreach( $post_types as $post_type ) {
-				add_meta_box( 'shortn_it_box', __( 'Shortn.It', 'shortn_it_textdomain' ), [ &$this, 'shortn_it_generate_sidebar' ], $post_type, 'side', 'high' );
+				add_meta_box( 'shortn_it_box', __( 'Shortn.It', 'shortn_it_textdomain' ), array( &$this, 'shortn_it_generate_sidebar' ), $post_type, 'side', 'high' );
 			}
 		} else {
 			//	For older versions, add the meta box to post and page edit/create pages
-			add_action( 'dbx_post_sidebar', [ &$this, 'shortn_it_generate_sidebar' ] );
-			add_action( 'dbx_page_sidebar', [ &$this, 'shortn_it_generate_sidebar' ] );
+			add_action( 'dbx_post_sidebar', array( &$this, 'shortn_it_generate_sidebar' ) );
+			add_action( 'dbx_page_sidebar', array( &$this, 'shortn_it_generate_sidebar' ) );
 		}
 	}
 
@@ -652,11 +652,11 @@ class Shortn_It {
 	public function shortn_it_admin_panel() {
 
 		//	Register the Shortn.It options page
-		add_options_page( 'Shortn.It', 'Shortn.It', 'manage_options', 'shortnit/shortn-it-options.php', [ &$this, 'shortn_it_settings' ] );
+		add_options_page( 'Shortn.It', 'Shortn.It', 'manage_options', 'shortnit/shortn-it-options.php', array( &$this, 'shortn_it_settings' ) );
 
 		//	If the current user has permission to at least edit posts, add a link to the settings menu
 		if( current_user_can( 'edit_posts' ) && function_exists( 'add_submenu_page' ) )
-			add_filter( 'plugin_action_links_' . __FILE__, [ &$this, 'shortn_it_plugin_actions' ], 10, 2 );
+			add_filter( 'plugin_action_links_' . __FILE__, array( &$this, 'shortn_it_plugin_actions' ), 10, 2 );
 	}
 
 	/**
@@ -681,7 +681,7 @@ class Shortn_It {
 	public function shortn_it_plugin_actions( $links ) {
 
 		$settings_link = '<a href="options-general.php?page=shortnit/shortn-it-options.php">' . __( 'Settings', 'shortn_it_textdomain' ) . '</a>';
-		$links = array_merge( [ $settings_link ], $links ); // before other links
+		$links = array_merge( array( $settings_link ), $links ); // before other links
 		return $links;
 
 	}

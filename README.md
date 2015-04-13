@@ -6,7 +6,7 @@
   
 **Donate link:** http://docof.me
   
-**Version:** 1.7.0
+**Version:** 1.7.1
 
 **Tags:** url shortener, url shortening, shorturl, short_url, shortlink, short permalink, short url, custom short url, custom url
   
@@ -83,6 +83,9 @@ The short domain needs to be configured as an alias to your main domain. If you'
 
 
 ## Changelog ##
+
+### 1.7.1 ###
+* FIXED: Shorthand array declarations throwing syntax errors in older versions of PHP
 
 ### 1.7.0 ###
 * FIXED: Shortn.It URLs requested with query strings or hashes returning 404 error
