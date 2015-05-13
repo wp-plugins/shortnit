@@ -6,13 +6,13 @@
   
 **Donate link:** http://docof.me/donate
   
-**Version:** 1.7.3
+**Version:** 1.7.4
 
 **Tags:** url shortener, url shortening, shorturl, short_url, shortlink, short permalink, short url, custom short url, custom url
   
 **Requires at least:** 2.5
   
-**Tested up to:** 4.2
+**Tested up to:** 4.2.2
   
 **Stable tag:** trunk
   
@@ -83,6 +83,9 @@ The short domain needs to be configured as an alias to your main domain. If you'
 
 
 ## Changelog ##
+
+### 1.7.4 ###
+* ADDED: Option to filter WP SEO by Yoast canonical links with Shortn.It URLs
 
 ### 1.7.3 ###
 * ADDED: Filter WP SEO by Yoast canonical links with Shortn.It URLs

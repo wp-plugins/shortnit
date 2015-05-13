@@ -137,6 +137,10 @@ $shortn_it_base = $Shortn_It->get_shortn_it_base_url();
 					<label for="shortn_use_shortlink" class="checkbox">
 					<input name="shortn_use_shortlink" type="checkbox" id="shortn_use_shortlink" value='yes' <?php if( get_option( 'shortn_use_shortlink' ) == 'yes' ) { echo 'checked="checked"'; } ?>>
 					Use <a href="//microformats.org/wiki/rel-shortlink" title="Learn about rel=shortlink">shortlink</a></label>
+
+					<label for="shortn_use_canonical" class="checkbox">
+						<input name="shortn_use_canonical" type="checkbox" id="shortn_use_canonical" value='yes' <?php if( get_option( 'shortn_use_canonical' ) == 'yes' ) { echo 'checked="checked"'; } ?>>
+						Use Shortn.It URL as <a href="http://kb.yoast.com/article/148-canonical-urls-in-wordpress-seo" title="Learn about canonical URLs in WordPress SEO">canonical URL</a></label>
 			<?php /*		
 					<label for="shortn_use_shortlink_header" class="checkbox">
 					<input name="shortn_use_shortlink_header" type="checkbox" id="shortn_use_shortlink_header" value='yes' <?php if( get_option( 'shortn_use_shortlink_header' ) == 'yes' ) { echo 'checked="checked"'; } ?>>
@@ -154,6 +158,6 @@ $shortn_it_base = $Shortn_It->get_shortn_it_base_url();
 				<button type="submit" name="submit" class="shortn-save-button cssbutton blue">Save Changes</button>
 	
 				<input type="hidden" name="action" value="update">
-				<input type="hidden" name="page_options" value="shortn_it_permalink_prefix,shortn_it_permalink_custom,shortn_it_use_lowercase,shortn_it_use_uppercase,shortn_it_use_numbers,shortn_it_length,shortn_it_permalink_domain,shortn_it_domain_custom,shortn_use_short_url,shortn_use_shortlink,<?php /*shortn_use_shortlink_header,*/ ?>shortn_it_allow_slash">
+				<input type="hidden" name="page_options" value="shortn_it_permalink_prefix,shortn_it_permalink_custom,shortn_it_use_lowercase,shortn_it_use_uppercase,shortn_it_use_numbers,shortn_it_length,shortn_it_permalink_domain,shortn_it_domain_custom,shortn_use_short_url,shortn_use_shortlink,shortn_use_canonical,<?php /*shortn_use_shortlink_header,*/ ?>shortn_it_allow_slash">
 	</form>
 </div>

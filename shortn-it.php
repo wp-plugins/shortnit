@@ -4,7 +4,7 @@ Plugin Name: Shortn.It
 Plugin URI: http://docof.me/shortn-it
 Help & Support: http://docof.me/shortn-it
 Description: Personal, customized URL shortening for WordPress.
-Version: 1.7.3
+Version: 1.7.4
 Author: David Cochrum
 Author URI: http://www.docofmedia.com/
 
@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //	Define constant(s)
 define( 'SHORTN_IT_META', '_shortn_it_url' );
-define( 'SHORTN_IT_VERSION', '1.7.3' );
+define( 'SHORTN_IT_VERSION', '1.7.4' );
 
 //	Define global(s)
 global $wpdb;
@@ -61,6 +61,7 @@ class Shortn_It {
 		add_option( 'shortn_it_length', '5' );
 		add_option( 'shortn_use_short_url', 'yes' );
 		add_option( 'shortn_use_shortlink', 'yes' );
+		add_option( 'shortn_use_canonical', 'yes' );
 		//add_option( 'shortn_use_shortlink_header', 'yes' );
 		add_option( 'shortn_it_registered', 'no' );
 		add_option( 'shortn_it_registered_on', '0' );
@@ -84,8 +85,9 @@ class Shortn_It {
 
 		//	Create necessary filters
 		add_filter( 'get_shortlink', array( &$this, 'shortn_it_get_shortlink' ), 10, 3 );
-		add_filter( 'tweet_blog_post_url', array( &$this, 'get_shortn_it_url_from_long_url' ) );	// Support for Twitter Tools by Crowd Favorite
-		add_filter( 'wpseo_canonical', array( &$this, 'get_shortn_it_url_from_long_url' ) );		// Support for WP SEO by Yoast
+		add_filter( 'tweet_blog_post_url', array( &$this, 'get_shortn_it_url_from_long_url' ) );    // Support for Twitter Tools by Crowd Favorite
+		if( get_option( 'shortn_use_canonical' ) == 'yes' )
+			add_filter( 'wpseo_canonical', array( &$this, 'get_shortn_it_url_from_long_url' ) );        // Support for WP SEO by Yoast
 
 	}
 
